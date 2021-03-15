@@ -1,71 +1,119 @@
+
 package square;
 
 import java.awt.Graphics;
-import java.awt.Point;
+import java.awt.Graphics2D;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 import javax.swing.JPanel;
 
 public class GPanel extends JPanel {
-
 	private static final long serialVersionUID = 1L;
-	Point sP = null;
-	Point eP = null;
+
+	private GMouseHandler mouseHandler;
+	private static String selectedButton;
 
 	public GPanel() {
-		this.addMouseListener(new MouseEvent());
+		this.mouseHandler = new GMouseHandler();
+		this.addMouseListener(this.mouseHandler);
+		this.addMouseMotionListener(this.mouseHandler);
+		this.addMouseWheelListener(this.mouseHandler);
 	}
 
-	public class MouseEvent implements MouseListener {
+	public void paint(Graphics graphics) {
 
-		@Override
-		public void mouseClicked(java.awt.event.MouseEvent e) {
+	}
+
+	public String button(String name) {
+		if (name == null) {
+			if(this.selectedButton==null) {
+				return "rectButton";
+			}			
+			return this.selectedButton;
+		} else {
+			this.selectedButton = name;
+			return this.selectedButton;
+		}
+		
+	}
+
+	private class GMouseHandler implements MouseListener, MouseMotionListener, MouseWheelListener {
+
+		private int x0, y0, x1, y1;
+
+		public void mouseWheelMoved(MouseWheelEvent e) {
 		}
 
-		@Override
-		public void mousePressed(java.awt.event.MouseEvent e) {
-			sP = e.getPoint();
+		public void mouseMoved(MouseEvent e) {
 		}
 
-		@Override
-		public void mouseReleased(java.awt.event.MouseEvent e) {
-			eP = e.getPoint();
-			Graphics g = getGraphics();
-			int width;
-			int height;
-			if (eP.x - sP.x >= 0 && eP.y - sP.y >= 0) {
-				width = eP.x - sP.x;
-				height = eP.y - sP.y;
-				g.drawRect(sP.x, sP.y, width, height);
-			} else if (eP.x - sP.x >= 0 && eP.y - sP.y <= 0) {
-				width = eP.x - sP.x;
-				height = sP.y - eP.y;
-				g.drawRect(sP.x, sP.y - height, width, height);
-			} else if (eP.x - sP.x <= 0 && eP.y - sP.y >= 0) {
-				width = sP.x - eP.x;
-				height = eP.y - sP.y;
-				g.drawRect(sP.x - width, sP.y, width, height);
-			} else {
-				width = sP.x - eP.x;
-				height = sP.y - eP.y;
-				g.drawRect(sP.x - width, sP.y - height, width, height);
+		public void mouseClicked(MouseEvent e) {
+		}
+
+		public void mousePressed(MouseEvent e) {
+			x0 = e.getX();
+			y0 = e.getY();
+			x1 = x0;
+			y1 = y0;
+		}
+
+		public void mouseDragged(MouseEvent e) {
+			
+			selectedButton = button(null);
+			
+			Graphics2D graphics2D = (Graphics2D) getGraphics();
+			// exclusive or mode
+			graphics2D.setXORMode(getBackground());
+
+			if (selectedButton.equals("rectButton")) {
+
+				graphics2D.drawRect(x0, y0, x1 - x0, y1 - y0);
+
+				x1 = e.getX();
+				y1 = e.getY();
+
+				graphics2D.drawRect(x0, y0, x1 - x0, y1 - y0);
+
+			} else if (selectedButton.equals("ovalButton")) {
+
+				graphics2D.drawOval(x0, y0, x1 - x0, y1 - y0);
+
+				x1 = e.getX();
+				y1 = e.getY();
+
+				graphics2D.drawOval(x0, y0, x1 - x0, y1 - y0);
+
+			}
+
+			else if (selectedButton.equals("drawingButton")) {
+
+				graphics2D.drawLine(x0, y0, x1, y1);
+
+				x1 = e.getX();
+				y1 = e.getY();
+
+				graphics2D.drawLine(x0, y0, x1, y1);
 			}
 		}
 
 		@Override
-		public void mouseEntered(java.awt.event.MouseEvent e) {
+		public void mouseReleased(MouseEvent e) {
+
 		}
 
 		@Override
-		public void mouseExited(java.awt.event.MouseEvent e) {
+		public void mouseEntered(MouseEvent e) {
+
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+
 		}
 
 	}
-
-	public void paint(Graphics graphics) {
-		graphics.drawRect(10, 10, 20, 20);
-		graphics.drawOval(30, 30, 40, 40);
-
-	}
-
 }
